@@ -2,47 +2,40 @@
 #include <vector>
 #include <cpr/cpr.h>
 
-int main() {
+int main()
+{
+    std::string url = "http://httpbin.org/";
+    cpr::Response r;
+    std::vector<cpr::Pair> pairs;
 
-    std::string name = " ";
-    std::string value = " ";
-    std::vector<std::string> names;
-    std::vector<std::string> values;
-    cpr::Response res;
-
-    std::cout << "Enter the name of the argument and its value:\n";
-
-    while (name != "post" || name == "get")
+    while (true)
     {
-       std::cin >> name;
-       if (name == "post" || name == "get") break;
-       else
-       {
-           std::cin >> value;
-           names.push_back(name);
-           values.push_back(value);
-       }
-    }
+        cpr::Pair pair("", "");
+        std::cout << "Key: ";
+        std::cin >> pair.key;
 
-
-
-    if (name == "post")
-    {
-        for (int i = 0; i < names.size(); ++i)
-        {
-            res = cpr::Post(cpr::Url("http://httpbin.org/post"),
-                            cpr::Payload({{"name", names[i].c_str()}, {"value", values[i].c_str()}}));
+        if (pair.key == "post") {
+            r = cpr::Post(cpr::Url(url + "post"), cpr::Payload(pairs.begin(), pairs.end()));
+            break;
         }
-        std::cout << res.text << std::endl;
+        else if (pair.key == "get") {
+            bool first = true;
+            url += "get";
+            for (auto it = pairs.begin(); it != pairs.end(); ++it) {
+                url += first ? '?' : '&';
+                url += it->key + '=' + it->value;
+                first = false;
+            }
+            r = cpr::Get(cpr::Url(url));
+            break;
+        }
+        else
+        {
+            std::cout << "Value: ";
+            std::cin >> pair.value;
+            pairs.push_back(pair);
+        }
     }
 
-    else if (name == "get")
-    {
-        res = cpr::Get(cpr::Url("http://httpbin.org/get"));
-        std::cout << res.text << std::endl;
-    }
-
-
-
-    return 0;
+    std::cout << r.text << std::endl;
 }
