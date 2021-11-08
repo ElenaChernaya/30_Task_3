@@ -38,4 +38,5 @@ int main()
     }
 
     std::cout << r.text << std::endl;
+    return 0;
 }
